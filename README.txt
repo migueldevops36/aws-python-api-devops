@@ -66,3 +66,38 @@ Press Ctrl+C in the terminal running python3 app.py to stop the server.
 
 ## AWS Region
 eu-north-1 (Stockholm)
+
+## Run with Docker
+
+From the project directory, build the image:
+
+```bash
+sudo docker build -t python-api:local .
+```
+
+Stop any previous instance of the API using port 8000, then start the container:
+
+```bash
+sudo docker run -d --rm --name python-api -p 127.0.0.1:8000:8000 python-api:local
+```
+
+The API listens on `0.0.0.0:8000` inside the container. Docker publishes the
+port on the EC2 instance's loopback address at `127.0.0.1:8000`.
+
+Test the API from the EC2 instance:
+
+```bash
+curl -i http://127.0.0.1:8000/health
+curl -i http://127.0.0.1:8000/missing
+```
+
+The health endpoint returns HTTP 200. An unknown route returns HTTP 404.
+
+Stop the container:
+
+```bash
+sudo docker stop python-api
+```
+
+Docker removes the stopped container because it was started with `--rm`.
+The image remains available for the next run.

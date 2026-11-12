@@ -1,6 +1,7 @@
 """Run a minimal HTTP API using the Python standard library."""
 
 import json
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
@@ -23,8 +24,9 @@ class APIHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = HTTPServer(("127.0.0.1", 8000), APIHandler)
-    print("API running at http://127.0.0.1:8000 (press Ctrl+C to stop)", flush=True)
+    host = os.environ.get("APP_HOST", "127.0.0.1")
+    server = HTTPServer((host, 8000), APIHandler)
+    print(f"API running at http://{host}:8000 (press Ctrl+C to stop)", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
