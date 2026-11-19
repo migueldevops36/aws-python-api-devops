@@ -1,0 +1,36 @@
+name: Test Python API
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-api:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build Docker image
+        run: docker build -t python-api:ci .
+
+      - name: Start API container
+        run: docker run -d --name python-api -p 127.0.0.1:8000:8000 python-api:ci
+
+      - name: Check health endpoint
+        run: |
+          status=$(curl -sS --retry 10 --retry-connrefused --retry-delay 1 --max-time 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/health)
+          echo "GET /health returned HTTP $status (expected 200)"
+          test "$status" = "200"
+
+      - name: Check unknown route
+        run: |
+          status=$(curl -sS --max-time 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/missing)
+          echo "GET /missing returned HTTP $status (expected 404)"
+          test "$status" = "404"
