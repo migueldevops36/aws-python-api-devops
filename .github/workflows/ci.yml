@@ -25,7 +25,7 @@ jobs:
 
       - name: Check health endpoint
         run: |
-          status=$(curl -sS --retry 10 --retry-connrefused --retry-delay 1 --max-time 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/health)
+          status=$(curl -sS --retry 10 --retry-all-errors --retry-delay 1 --max-time 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/health)
           echo "GET /health returned HTTP $status (expected 200)"
           test "$status" = "200"
 
@@ -34,3 +34,9 @@ jobs:
           status=$(curl -sS --max-time 5 -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/missing)
           echo "GET /missing returned HTTP $status (expected 404)"
           test "$status" = "404"
+
+      - name: Show container diagnostics
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs python-api
