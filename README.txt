@@ -24,7 +24,8 @@ This project focuses on building, containerising, testing, and deploying a Pytho
 ## Project Status
 A minimal Python API is implemented in app.py and has been manually tested on EC2.
 It uses only the Python standard library, with no external dependencies.
-Docker, automated tests, and CI/CD remain planned work.
+Docker containerisation and automated HTTP status checks in GitHub Actions
+are implemented. Automated deployment remains planned work.
 
 ## Run the API
 From the project directory on the EC2 instance, run:
@@ -101,3 +102,19 @@ sudo docker stop python-api
 
 Docker removes the stopped container because it was started with `--rm`.
 The image remains available for the next run.
+
+## Continuous Integration
+
+The GitHub Actions workflow runs on every push to main.
+
+It checks out the repository, builds the Docker image, starts the API
+container, and verifies these HTTP responses:
+
+- GET /health returns 200.
+- GET /missing returns 404.
+
+The health check retries connection errors while the API starts.
+If a step fails, the workflow displays the container status and logs.
+
+These checks run on a GitHub-hosted runner.
+Deployment to EC2 remains planned work.
