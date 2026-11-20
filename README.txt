@@ -118,3 +118,21 @@ If a step fails, the workflow displays the container status and logs.
 
 These checks run on a GitHub-hosted runner.
 Deployment to EC2 remains planned work.
+
+## Manual Deployment
+
+From the project directory on EC2, run:
+
+```bash
+bash scripts/deploy.sh
+```
+
+The script builds the Docker image, replaces the existing python-api
+container, starts the new container, and checks that /health returns 200.
+
+Replacing a running container causes a brief interruption.
+If the health check fails, the script stops with an error.
+The script does not automatically restore the previous container.
+
+The container uses the unless-stopped restart policy.
+Docker must be running for the API to run.
